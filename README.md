@@ -1,1 +1,0 @@
-# slug-generator-web-mostafa
