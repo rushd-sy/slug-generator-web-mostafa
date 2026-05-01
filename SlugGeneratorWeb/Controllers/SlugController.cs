@@ -15,12 +15,15 @@ namespace SlugGeneratorWeb.Controllers
         {
             if (String.IsNullOrWhiteSpace(slugRequest.Text))
                 return BadRequest("Text should not be empty.");
+            char seperator;
             if (slugRequest.Separator is null || slugRequest.Separator == ' ')
-                slugRequest.Separator = '-';
-            GenerateSlugResponse slugResponse = new GenerateSlugResponse();
-            slugResponse.OriginalText = slugRequest.Text;
-            slugResponse.Slug = SlugGenerator.CustomGenerate(slugRequest.Text, 
-                (char)slugRequest.Separator);
+                seperator = '-';
+            else
+                seperator = (char)slugRequest.Separator;
+            GenerateSlugResponse slugResponse = new GenerateSlugResponse { 
+                OriginalText  = slugRequest.Text,
+                Slug = SlugGenerator.CustomGenerate(slugRequest.Text, seperator)
+            };
             return Ok(slugResponse);
         }
     }
