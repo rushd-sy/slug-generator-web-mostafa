@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
-namespace SlugGeneratorWeb
+namespace SlugGeneratorWeb.Middlewares
 {
     internal sealed class CustomExceptionHandler : IExceptionHandler
     {

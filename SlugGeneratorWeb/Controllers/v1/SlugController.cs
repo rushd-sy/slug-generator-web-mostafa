@@ -1,12 +1,12 @@
 ﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using SlugGeneratorLibrary;
-using SlugGeneratorWeb.Models;
+using SlugGeneratorWeb.DTOs.Responses;
+using SlugGeneratorWeb.DTOs.Requests;
 
-namespace SlugGeneratorWeb.Controllers
+namespace SlugGeneratorWeb.Controllers.v1
 {
     [ApiVersion(1, Deprecated = true)]
-    [ApiVersion(2)]
     [Route("api/v{v:apiVersion}/[controller]")]
     [ApiController]
     public class SlugController : ControllerBase
@@ -24,25 +24,6 @@ namespace SlugGeneratorWeb.Controllers
                 seperator = (char)slugRequest.Separator;
             GenerateSlugResponse slugResponse = new GenerateSlugResponse { 
                 OriginalText  = slugRequest.Text,
-                Slug = SlugGenerator.CustomGenerate(slugRequest.Text, seperator)
-            };
-            return Ok(slugResponse);
-        }
-
-        [ApiVersion(2)]
-        [HttpPost]
-        public ActionResult<GenerateSlugResponse> SlugifyV2([FromBody] GenerateSlugRequest slugRequest)
-        {
-            if (String.IsNullOrWhiteSpace(slugRequest.Text))
-                throw new ArgumentException("Text should not be empty.");
-            char seperator;
-            if (slugRequest.Separator is null || slugRequest.Separator == ' ')
-                seperator = '-';
-            else
-                seperator = (char)slugRequest.Separator;
-            GenerateSlugResponse slugResponse = new GenerateSlugResponse
-            {
-                OriginalText = slugRequest.Text,
                 Slug = SlugGenerator.CustomGenerate(slugRequest.Text, seperator)
             };
             return Ok(slugResponse);
