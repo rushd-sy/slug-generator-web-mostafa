@@ -13,7 +13,7 @@ namespace SlugGeneratorWeb.Controllers.v1
     {
         [ApiVersion(1, Deprecated = true)]
         [HttpPost]
-        public ActionResult<GenerateSlugResponse> SlugifyV1([FromBody] GenerateSlugRequest slugRequest)
+        public ActionResult<GenerateSlugResponse> Slugify([FromBody] GenerateSlugRequest slugRequest)
         {
             if (String.IsNullOrWhiteSpace(slugRequest.Text))
                 return BadRequest("Text should not be empty.");
