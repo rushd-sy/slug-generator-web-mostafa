@@ -2,7 +2,11 @@ using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
 using FluentValidation;
 using Microsoft.Extensions.Options;
+<<<<<<< HEAD
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
+=======
+using Serilog;
+>>>>>>> main
 using SlugGeneratorWeb.Configurations;
 using SlugGeneratorWeb.DTOs.Requests;
 using SlugGeneratorWeb.Middlewares;
@@ -33,6 +37,12 @@ builder.Services.AddApiVersioning(options =>
     options.GroupNameFormat = "'v'VV";
     options.SubstituteApiVersionInUrl = true;
 });
+
+// Serilog
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+builder.Host.UseSerilog();
 
 // Register swagger service and configuration
 builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerGenOptions>();
