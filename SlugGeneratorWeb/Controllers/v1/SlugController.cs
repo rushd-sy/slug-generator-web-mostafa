@@ -1,17 +1,19 @@
 ﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using SlugGeneratorLibrary;
-using SlugGeneratorWeb.Models;
+using SlugGeneratorWeb.DTOs.Responses;
+using SlugGeneratorWeb.DTOs.Requests;
 
-namespace SlugGeneratorWeb.Controllers
+namespace SlugGeneratorWeb.Controllers.v1
 {
-    [ApiVersion(1)]
+    [ApiVersion(1, Deprecated = true)]
     [Route("api/v{v:apiVersion}/[controller]")]
     [ApiController]
     public class SlugController : ControllerBase
     {
+        [ApiVersion(1, Deprecated = true)]
         [HttpPost]
-        public ActionResult<GenerateSlugResponse> Slugify([FromBody] GenerateSlugRequest slugRequest)
+        public ActionResult<GenerateSlugResponse> SlugifyV1([FromBody] GenerateSlugRequest slugRequest)
         {
             if (String.IsNullOrWhiteSpace(slugRequest.Text))
                 return BadRequest("Text should not be empty.");

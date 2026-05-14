@@ -1,8 +1,16 @@
 using Asp.Versioning;
+using Asp.Versioning.ApiExplorer;
+using Microsoft.Extensions.Options;
+using Serilog;
+using SlugGeneratorWeb.Configurations;
+using SlugGeneratorWeb.Middlewares;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+// Adds services for using Problem Details format
+builder.Services.AddProblemDetails();
 
 // Add services to the container.
 
@@ -12,11 +20,10 @@ builder.Services.AddControllers();
 // API versioning
 builder.Services.AddApiVersioning(options =>
 {
-    options.DefaultApiVersion = new ApiVersion(1);
+    options.DefaultApiVersion = new ApiVersion(2);
     options.ReportApiVersions = true;
     options.AssumeDefaultVersionWhenUnspecified = true;
-    options.ApiVersionReader = ApiVersionReader.Combine(
-        new UrlSegmentApiVersionReader());
+    options.ApiVersionReader = new UrlSegmentApiVersionReader();
 })
 .AddMvc() // This is needed for controllers
 .AddApiExplorer(options =>
@@ -25,13 +32,41 @@ builder.Services.AddApiVersioning(options =>
     options.SubstituteApiVersionInUrl = true;
 });
 
+// Serilog
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+builder.Host.UseSerilog();
+
+// Register swagger service and configuration
+builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerGenOptions>();
+builder.Services.AddSwaggerGen();
+
+builder.Services.AddExceptionHandler<CustomExceptionHandler>();
+
 var app = builder.Build();
+
+// Converts unhandled exceptions into Problem Details responses
+app.UseExceptionHandler();
+
+// Returns the Problem Details response for (empty) non-successful responses
+app.UseStatusCodePages();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+        foreach (var description in provider.ApiVersionDescriptions)
+        {
+            options.SwaggerEndpoint(
+                $"/swagger/{description.GroupName}/swagger.json",
+                description.GroupName.ToUpperInvariant()
+            );
+        }
+    });
 }
 
 app.UseHttpsRedirection();
