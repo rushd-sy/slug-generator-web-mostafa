@@ -2,11 +2,8 @@ using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
 using FluentValidation;
 using Microsoft.Extensions.Options;
-<<<<<<< HEAD
-using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
-=======
 using Serilog;
->>>>>>> main
+using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using SlugGeneratorWeb.Configurations;
 using SlugGeneratorWeb.DTOs.Requests;
 using SlugGeneratorWeb.Middlewares;
@@ -50,7 +47,6 @@ builder.Services.AddSwaggerGen();
 
 // Register fluent validation
 builder.Services.AddScoped<IValidator<GenerateSlugRequest>, GenerateSlugValidator>();
-builder.Services.AddFluentValidationAutoValidation();
 
 // Register global exception handler middleware
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
