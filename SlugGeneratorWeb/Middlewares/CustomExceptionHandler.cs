@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using FluentValidation;
+
 
 namespace SlugGeneratorWeb.Middlewares
 {
@@ -19,23 +21,35 @@ namespace SlugGeneratorWeb.Middlewares
         {
             _logger.LogError(
                 exception,
-                "Exception occurred: {Message}. Request Path: {Path}",
+                "Exception occurred: Trace Id: {TraceIdentifier}, {Message}. Request Path: {Path}.",
+                httpContext.TraceIdentifier,
                 exception.Message,
                 httpContext.Request.Path);
 
-            int status = exception switch
+            var (status, title, detail) = exception switch
             {
-                ArgumentException => StatusCodes.Status400BadRequest,
-                _ => StatusCodes.Status500InternalServerError
+                ValidationException validationException => (
+                    StatusCodes.Status400BadRequest,
+                    "Validation Failed",
+                    validationException.Message
+                ),
+                ArgumentException => (
+                    StatusCodes.Status400BadRequest,
+                    "Bad Request",
+                    exception.Message),
+                _ => (StatusCodes.Status500InternalServerError,
+                "Internal Server Error",
+                "Unexpected error from server side")
             };
+
             httpContext.Response.StatusCode = status;
 
             var problemDetails = new ProblemDetails
             {
                 Status = status,
-                Title = "An error occurred",
+                Title = title,
                 Type = exception.GetType().Name,
-                Detail = exception.Message
+                Detail = detail
             };
 
             await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);

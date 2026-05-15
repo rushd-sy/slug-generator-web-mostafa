@@ -1,9 +1,13 @@
 using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
+using FluentValidation;
 using Microsoft.Extensions.Options;
 using Serilog;
+using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using SlugGeneratorWeb.Configurations;
+using SlugGeneratorWeb.DTOs.Requests;
 using SlugGeneratorWeb.Middlewares;
+using SlugGeneratorWeb.Validation;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,7 +17,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddProblemDetails();
 
 // Add services to the container.
-
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 
@@ -28,7 +31,7 @@ builder.Services.AddApiVersioning(options =>
 .AddMvc() // This is needed for controllers
 .AddApiExplorer(options =>
 {
-    options.GroupNameFormat = "'v'V";
+    options.GroupNameFormat = "'v'VV";
     options.SubstituteApiVersionInUrl = true;
 });
 
@@ -42,6 +45,10 @@ builder.Host.UseSerilog();
 builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerGenOptions>();
 builder.Services.AddSwaggerGen();
 
+// Register fluent validation
+builder.Services.AddScoped<IValidator<GenerateSlugRequest>, GenerateSlugValidator>();
+
+// Register global exception handler middleware
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
 var app = builder.Build();
